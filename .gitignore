@@ -1,0 +1,14 @@
+.env
+config.h
+.DS_Store
+*.pyc
+__pycache__/
+node_modules/
+.vscode/
+.idea/
+*.o
+*.a
+*.so
+.pio/
+.venv/
+venv/
