@@ -6,6 +6,10 @@
 const int moistureSensor1 = 32; // Feuchtigkeitssensor 1 an D32
 const int moistureSensor2 = 33; // Feuchtigkeitssensor 2 an D33
 
+// Kalibrierungswerte für Feuchte in %
+const int MOISTURE_DRY = 2600;    // Trocken (0%)
+const int MOISTURE_WET = 1000;    // Nass (100%)
+
 WiFiClient espClient;
 PubSubClient client(espClient);
 
@@ -86,6 +90,10 @@ void publishSensorData() {
   // Feuchtigkeitssensoren auslesen
   int moistureValue1 = analogRead(moistureSensor1);
   int moistureValue2 = analogRead(moistureSensor2);
+  
+  // In Prozent umrechnen
+  int moisturePercent1 = calculateMoisturePercent(moistureValue1);
+  int moisturePercent2 = calculateMoisturePercent(moistureValue2);
 
   // MQTT Topics erstellen
   char topic1[50];
@@ -95,18 +103,35 @@ void publishSensorData() {
   
   snprintf(topic1, sizeof(topic1), "%s/sensor/moisture1", MQTT_TOPIC);
   snprintf(topic2, sizeof(topic2), "%s/sensor/moisture2", MQTT_TOPIC);
-  snprintf(payload1, sizeof(payload1), "%d", moistureValue1);
-  snprintf(payload2, sizeof(payload2), "%d", moistureValue2);
+  snprintf(payload1, sizeof(payload1), "%d", moisturePercent1);
+  snprintf(payload2, sizeof(payload2), "%d", moisturePercent2);
   
   // Werte veröffentlichen
   client.publish(topic1, payload1);
   client.publish(topic2, payload2);
   
-  // Debug-Ausgabe
+  // Debug-Ausgabe (Raw + Prozent)
   Serial.print("Sensor 1: ");
   Serial.print(moistureValue1);
-  Serial.print(" | Sensor 2: ");
-  Serial.println(moistureValue2);
+  Serial.print(" (");
+  Serial.print(moisturePercent1);
+  Serial.print("%) | Sensor 2: ");
+  Serial.print(moistureValue2);
+  Serial.print(" (");
+  Serial.print(moisturePercent2);
+  Serial.println("%)");
+}
+
+// Hilfsfunktion: Rohwert zu Prozent umrechnen
+int calculateMoisturePercent(int rawValue) {
+  // Begrenzen auf Min/Max Werte
+  if (rawValue > MOISTURE_DRY) rawValue = MOISTURE_DRY;
+  if (rawValue < MOISTURE_WET) rawValue = MOISTURE_WET;
+  
+  // Umrechnung: (DRY - rawValue) / (DRY - WET) * 100
+  int percent = (MOISTURE_DRY - rawValue) * 100 / (MOISTURE_DRY - MOISTURE_WET);
+  
+  return percent;
 }
 
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
