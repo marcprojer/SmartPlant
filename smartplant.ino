@@ -94,21 +94,27 @@ void publishSensorData() {
   // In Prozent umrechnen
   int moisturePercent1 = calculateMoisturePercent(moistureValue1);
   int moisturePercent2 = calculateMoisturePercent(moistureValue2);
+  int moisturePercentAvg = (moisturePercent1 + moisturePercent2) / 2;
 
   // MQTT Topics erstellen
   char topic1[50];
   char topic2[50];
+  char topicAvg[50];
   char payload1[10];
   char payload2[10];
+  char payloadAvg[10];
   
   snprintf(topic1, sizeof(topic1), "%s/sensor/moisture1", MQTT_TOPIC);
   snprintf(topic2, sizeof(topic2), "%s/sensor/moisture2", MQTT_TOPIC);
+  snprintf(topicAvg, sizeof(topicAvg), "%s/sensor/moisture_avg", MQTT_TOPIC);
   snprintf(payload1, sizeof(payload1), "%d", moisturePercent1);
   snprintf(payload2, sizeof(payload2), "%d", moisturePercent2);
+  snprintf(payloadAvg, sizeof(payloadAvg), "%d", moisturePercentAvg);
   
-  // Werte veröffentlichen
-  client.publish(topic1, payload1);
-  client.publish(topic2, payload2);
+  // Werte veröffentlichen (retained, optional)
+  client.publish(topic1, payload1, true);
+  client.publish(topic2, payload2, true);
+  client.publish(topicAvg, payloadAvg, true);
   
   // Debug-Ausgabe (Raw + Prozent)
   Serial.print("Sensor 1: ");
@@ -119,7 +125,9 @@ void publishSensorData() {
   Serial.print(moistureValue2);
   Serial.print(" (");
   Serial.print(moisturePercent2);
-  Serial.println("%)");
+  Serial.print("%) | Avg: ");
+  Serial.print(moisturePercentAvg);
+  Serial.println("%");
 }
 
 // Hilfsfunktion: Rohwert zu Prozent umrechnen
