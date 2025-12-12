@@ -103,7 +103,7 @@ void publishSensorData() {
   client.publish(topic2, payload2);
   
   // Debug-Ausgabe
-  Serial.print("Published - Sensor 1: ");
+  Serial.print("Sensor 1: ");
   Serial.print(moistureValue1);
   Serial.print(" | Sensor 2: ");
   Serial.println(moistureValue2);
