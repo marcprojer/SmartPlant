@@ -7,8 +7,8 @@ const int moistureSensor1 = 32; // Feuchtigkeitssensor 1 an D32
 const int moistureSensor2 = 33; // Feuchtigkeitssensor 2 an D33
 
 // Kalibrierungswerte für Feuchte in %
-const int MOISTURE_DRY = 2600;    // Trocken (0%)
-const int MOISTURE_WET = 1000;    // Nass (100%)
+const int MOISTURE_DRY = 2570;    // Trocken (0%)
+const int MOISTURE_WET = 1050;    // Nass (100%)
 
 WiFiClient espClient;
 PubSubClient client(espClient);
