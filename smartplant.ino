@@ -5,10 +5,15 @@
 // Pin Definitionen
 const int moistureSensor1 = 32; // Feuchtigkeitssensor 1 an D32
 const int moistureSensor2 = 33; // Feuchtigkeitssensor 2 an D33
+const int lightSensor = 34;     // Photoresistor an D34 (SIG)
 
 // Kalibrierungswerte für Feuchte in %
 const int MOISTURE_DRY = 2570;    // Trocken (0%)
 const int MOISTURE_WET = 1050;    // Nass (100%)
+
+// Kalibrierungswerte für Helligkeit (Rohwerte 0-4095)
+const int LIGHT_MIN = 0;          // Dunkel (passe nach Kalibrierung an)
+const int LIGHT_MAX = 4095;       // Hell (passe nach Kalibrierung an)
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -91,6 +96,9 @@ void publishSensorData() {
   int moistureValue1 = analogRead(moistureSensor1);
   int moistureValue2 = analogRead(moistureSensor2);
   
+  // Lichtsensor auslesen
+  int lightValue = analogRead(lightSensor);
+  
   // In Prozent umrechnen
   int moisturePercent1 = calculateMoisturePercent(moistureValue1);
   int moisturePercent2 = calculateMoisturePercent(moistureValue2);
@@ -100,21 +108,26 @@ void publishSensorData() {
   char topic1[50];
   char topic2[50];
   char topicAvg[50];
+  char topicLight[50];
   char payload1[10];
   char payload2[10];
   char payloadAvg[10];
+  char payloadLight[10];
   
   snprintf(topic1, sizeof(topic1), "%s/sensor/moisture1", MQTT_TOPIC);
   snprintf(topic2, sizeof(topic2), "%s/sensor/moisture2", MQTT_TOPIC);
   snprintf(topicAvg, sizeof(topicAvg), "%s/sensor/moisture_avg", MQTT_TOPIC);
+  snprintf(topicLight, sizeof(topicLight), "%s/sensor/light", MQTT_TOPIC);
   snprintf(payload1, sizeof(payload1), "%d", moisturePercent1);
   snprintf(payload2, sizeof(payload2), "%d", moisturePercent2);
   snprintf(payloadAvg, sizeof(payloadAvg), "%d", moisturePercentAvg);
+  snprintf(payloadLight, sizeof(payloadLight), "%d", lightValue);
   
   // Werte veröffentlichen (retained, optional)
   client.publish(topic1, payload1, true);
   client.publish(topic2, payload2, true);
   client.publish(topicAvg, payloadAvg, true);
+  client.publish(topicLight, payloadLight, true);
   
   // Debug-Ausgabe (Raw + Prozent)
   Serial.print("Sensor 1: ");
@@ -127,7 +140,8 @@ void publishSensorData() {
   Serial.print(moisturePercent2);
   Serial.print("%) | Avg: ");
   Serial.print(moisturePercentAvg);
-  Serial.println("%");
+  Serial.print("% | Light: ");
+  Serial.println(lightValue);
 }
 
 // Hilfsfunktion: Rohwert zu Prozent umrechnen
