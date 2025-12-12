@@ -1,5 +1,6 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <ArduinoOTA.h>
 #include "config.h"
 
 // Pin Definitionen
@@ -19,7 +20,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 unsigned long lastPublishTime = 0;
-const unsigned long publishInterval = 5000; // Publish alle 5 Sekunden
+const unsigned long publishInterval = 300000; // Publish alle 5 Minuten
 
 void setup() {
   // Serielle Kommunikation starten
@@ -34,6 +35,9 @@ void setup() {
   // MQTT Broker verbinden
   client.setServer(MQTT_BROKER, MQTT_PORT);
   client.setCallback(mqttCallback);
+  
+  // OTA Setup
+  setupOTA();
 }
 
 void loop() {
@@ -43,6 +47,9 @@ void loop() {
   }
   
   client.loop();
+  
+  // OTA Handle
+  ArduinoOTA.handle();
 
   // Sensorwerte veröffentlichen
   if (millis() - lastPublishTime >= publishInterval) {
@@ -89,6 +96,37 @@ void connectToMQTT() {
       delay(5000);
     }
   }
+}
+
+// OTA Setup Funktion
+void setupOTA() {
+  ArduinoOTA.setHostname(OTA_HOSTNAME);
+  ArduinoOTA.setPassword(OTA_PASSWORD);
+  
+  ArduinoOTA.onStart([]() {
+    String type = (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
+    Serial.println("OTA Start updating " + type);
+  });
+  
+  ArduinoOTA.onEnd([]() {
+    Serial.println("\nOTA End");
+  });
+  
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("OTA Progress: %u%%\r", (progress / (total / 100)));
+  });
+  
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("OTA Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  });
+  
+  ArduinoOTA.begin();
+  Serial.println("OTA Ready - IP: " + WiFi.localIP().toString());
 }
 
 void publishSensorData() {
