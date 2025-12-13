@@ -117,6 +117,14 @@ camera:
 
 ESPHome approach (recommended): Define the ESP32-CAM in ESPHome and let Home Assistant auto-discover it. Manage WiFi, OTA, and camera settings in ESPHome without hardcoding secrets in this repo.
 
+#### Plant Snapshot
+As part of documenting the rescue effort for a dying plant, a snapshot was taken and stored in the ESPHome folder.
+
+- Snapshot file: `esphome/snapshot_camera_esp32cam_esp32_cam_13.12.2025.jpg`
+- Purpose: Track plant condition visually alongside sensor data
+
+![SmartPlant Snapshot](esphome/plant_snapshot.jpg)
+
 ## MQTT Topics
 
 The device publishes to the following topics (prefix: `smartplant/sensor/`):
@@ -172,6 +180,7 @@ Attempting MQTT connection...connected!
 OTA Ready - IP: 192.168.1.100
 Sensor 1: 1500 (50%) | Sensor 2: 1600 (45%) | Avg: 47% | Light: 2100
 ```
+
 
 ## Troubleshooting
 
