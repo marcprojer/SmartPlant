@@ -123,7 +123,7 @@ As part of documenting the rescue effort for a dying plant, a snapshot was taken
 - Snapshot file: `esphome/snapshot_camera_esp32cam_esp32_cam_13.12.2025.jpg`
 - Purpose: Track plant condition visually alongside sensor data
 
-![SmartPlant Snapshot](esphome/plant_snapshot.jpg)
+![SmartPlant Snapshot](ESPHome/snapshot_camera_esp32cam_esp32_cam_13.12.2025.jpg)
 
 ## MQTT Topics
 
