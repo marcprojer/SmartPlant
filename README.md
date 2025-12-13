@@ -1,9 +1,10 @@
 # SmartPlant - ESP32 Plant Monitoring System
 
 **Note:** This project was AI-generated using GitHub Copilot.
+**ESPHome:** The ESP32-CAM integration and Home Assistant camera setup are managed via ESPHome.
 
 ## Overview
-SmartPlant is an IoT plant monitoring system built on ESP32 that monitors soil moisture and light levels. Data is published via MQTT to Home Assistant for centralized monitoring and automation.
+SmartPlant is an IoT plant monitoring system built on ESP32 that monitors soil moisture and light levels. Data is published via MQTT to Home Assistant for centralized monitoring and automation. The ESP32-CAM camera integration is implemented using ESPHome for easy configuration and OTA management.
 
 ## Features
 - 📊 Dual capacitive moisture sensors (D32, D33)
@@ -12,6 +13,7 @@ SmartPlant is an IoT plant monitoring system built on ESP32 that monitors soil m
 - 🏠 Home Assistant integration via MQTT
 - 🔧 OTA (Over-The-Air) updates
 - 🔒 Secure credential management via `config.h`
+ - 📷 ESP32-CAM plant monitoring (see `esp32cam.yaml`)
 
 ## Hardware Setup
 
@@ -95,6 +97,25 @@ const int LIGHT_MAX = 4095;       // Bright environment reading
 3. In Arduino IDE:
    - Select **Tools → Port → SmartPlant at [IP_ADDRESS]**
    - Upload normally
+
+### ESP32-CAM (Plant Camera)
+An optional camera setup is provided to visually monitor the plant.
+
+- Configuration file: `esp32cam.yaml`
+- Purpose: Adds an ESP32-CAM to Home Assistant for live video and snapshots (via ESPHome)
+- Typical use: Track plant growth, detect over/under-watering visually
+
+Example (Home Assistant camera configuration):
+
+```yaml
+camera:
+  - platform: generic
+    name: SmartPlant Camera
+    still_image_url: http://<esp32cam-ip>/capture
+    stream_source: http://<esp32cam-ip>:81/stream
+```
+
+ESPHome approach (recommended): Define the ESP32-CAM in ESPHome and let Home Assistant auto-discover it. Manage WiFi, OTA, and camera settings in ESPHome without hardcoding secrets in this repo.
 
 ## MQTT Topics
 
@@ -182,6 +203,7 @@ SmartPlant/
 ├── smartplant.ino          # Main sketch
 ├── config.h                # Credentials (git-ignored)
 ├── .gitignore              # Git ignore rules
+├── esp32cam.yaml           # Home Assistant config for ESP32-CAM
 └── README.md               # This file
 ```
 
@@ -192,7 +214,8 @@ SmartPlant/
 - Web dashboard interface
 - **Node-RED Integration**: Transform MQTT requests to API calls for external services
 - **InfluxDB Integration**: Store time-series sensor data for historical analysis
-- **Grafana Dashboard**: Create interactive visualizations and analytics dashboards from 
+ - **Grafana Dashboard**: Create interactive visualizations and analytics dashboards from InfluxDB data
+ - **ESP32-CAM Automations**: Motion-based snapshots, time-lapse, and HA notifications
 
 ## License
 This project is provided as-is for personal use.
